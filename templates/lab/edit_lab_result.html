@@ -1,0 +1,469 @@
+{% extends "main/base.html" %}
+
+{% block title %}Edit Lab Result{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #007bff;
+    }
+
+    .header h1 {
+        color: #007bff;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .patient-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .patient-info h3 {
+        margin: 0 0 10px 0;
+        font-size: 1.3rem;
+    }
+
+    .patient-info p {
+        margin: 5px 0;
+        opacity: 0.9;
+    }
+
+    .form-container {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .required {
+        color: #dc3545;
+    }
+
+    .form-group input,
+    select,
+    .form-group textarea {
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #1e7e34;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    /*Autocomplete functionality styles*/
+    .autocomplete {
+        position: relative;
+    }
+
+    .autocomplete-items {
+        position: absolute;
+        border: 1px solid #d4d4d4;
+        border-bottom: none;
+        border-top: none;
+        z-index: 99;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        background: white;
+        border-radius: 0 0 8px 8px;
+    }
+
+    .autocomplete-items div {
+        padding: 10px;
+        cursor: pointer;
+        background-color: #fff;
+        border-bottom: 1px solid #d4d4d4;
+        transition: background-color 0.2s ease;
+    }
+
+    .autocomplete-items div:hover {
+        background-color: #f8f9fa;
+    }
+
+    .autocomplete-active {
+        background-color: #007bff !important;
+        color: #ffffff !important;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            margin: 10px;
+            padding: 15px;
+        }
+
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'error' if category == 'error' else category }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="header">
+        <h1>Edit Lab Result</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('lab_results.view_lab_results') }}" class="btn btn-secondary">Back to Lab Results</a>
+        </div>
+    </div>
+
+    <!-- Patient Information -->
+    <div class="patient-info">
+        <h3>Patient: {{ lab_result.patient.first_name }} {{ lab_result.patient.last_name }}</h3>
+        <p><strong>Date of Birth:</strong> {{ lab_result.patient.date_of_birth.strftime('%Y-%m-%d') if
+            lab_result.patient.date_of_birth else 'Not specified' }}</p>
+        <p><strong>Age:</strong> {{ (2025 - lab_result.patient.date_of_birth.year) if lab_result.patient.date_of_birth
+            else 'Unknown' }} years old</p>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="form-container">
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group autocomplete">
+                    <label for="test_name">Test Name <span class="required">*</span></label>
+                    <input type="text" id="test_name" name="test_name" value="{{ lab_result.test_name }}" required
+                        placeholder="e.g., Blood Glucose, Complete Blood Count">
+                </div>
+                <div class="form-group">
+                    <label for="test_date">Test Date <span class="required">*</span></label>
+                    <input type="datetime-local" id="test_date" name="test_date"
+                        value="{{ lab_result.date.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="result">Test Result <span class="required">*</span></label>
+                    <input type="text" id="result" name="result" required
+                        placeholder="Enter the test result, e.g., 12.5, Normal, Positive"
+                        value="{{ lab_result.result }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="unit">Unit</label>
+                    <input type="text" id="unit" name="unit" placeholder="Enter the unit, e.g., mg/dL, %"
+                        value="{{ lab_result.unit if lab_result.unit else '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reference_range">Reference Range</label>
+                    <input type="text" id="reference_range" name="reference_range"
+                        placeholder="Enter the reference range, e.g., 4.0-6.0, Normal"
+                        value="{{ lab_result.reference_range if lab_result.reference_range else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">Select status</option>
+                        <option value="normal" {{ 'selected' if lab_result.status.value=='normal' }}>Normal</option>
+                        <option value="abnormal" {{ 'selected' if lab_result.status.value=='abnormal' }}>Abnormal
+                        </option>
+                        <option value="high" {{ 'selected' if lab_result.status.value=='high' }}>High</option>
+                        <option value="low" {{ 'selected' if lab_result.status.value=='low' }}>Low</option>
+                        <option value="critical" {{ 'selected' if lab_result.status.value=='critical' }}>Critical
+                        </option>
+                        <option value="pending" {{ 'selected' if lab_result.status.value=='pending' }}>Pending</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" name="notes"
+                    placeholder="Additional notes about the test results, interpretation, or follow-up recommendations">{{ lab_result.notes if lab_result.notes else '' }}</textarea>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="btn btn-success">Update Lab Result</button>
+                <a href="{{ url_for('lab_results.view_lab_results') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Common test name suggestions
+    const commonTests = [
+        'Complete Blood Count (CBC)',
+        'Comprehensive Metabolic Panel (CMP)',
+        'Lipid Panel',
+        'Hemoglobin A1c (HbA1c)',
+        'Thyroid Stimulating Hormone (TSH)',
+        'Prostate Specific Antigen (PSA)',
+        'Urinalysis',
+        'Vitamin D',
+        'Vitamin B12',
+        'Folate',
+        'Iron Studies',
+        'Liver Function Tests (LFT)',
+        'Kidney Function Tests',
+        'Cardiac Enzymes',
+        'Blood Glucose',
+        'C-Reactive Protein (CRP)',
+        'Erythrocyte Sedimentation Rate (ESR)',
+        'Troponin',
+        'BUN/Creatinine',
+        'Electrolytes',
+        'Magnesium',
+        'Phosphorus',
+        'Calcium',
+        'Albumin',
+        'Total Protein',
+        'Bilirubin'
+    ];
+
+    // Autocomplete functionality
+    function autocomplete(inp, arr) {
+        var currentFocus;
+
+        inp.addEventListener("input", function (e) {
+            var a, b, i, val = this.value;
+            closeAllLists();
+            if (!val) { return false; }
+            currentFocus = -1;
+
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(a);
+
+            for (i = 0; i < arr.length; i++) {
+                if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    b = document.createElement("DIV");
+                    b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                    b.innerHTML += arr[i].substr(val.length);
+                    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+
+                    b.addEventListener("click", function (e) {
+                        inp.value = this.getElementsByTagName("input")[0].value;
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                }
+            }
+        });
+
+        inp.addEventListener("keydown", function (e) {
+            var x = document.getElementById(this.id + "autocomplete-list");
+            if (x) x = x.getElementsByTagName("div");
+            if (e.keyCode == 40) {
+                currentFocus++;
+                addActive(x);
+            } else if (e.keyCode == 38) {
+                currentFocus--;
+                addActive(x);
+            } else if (e.keyCode == 13) {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    if (x) x[currentFocus].click();
+                }
+            }
+        });
+
+        function addActive(x) {
+            if (!x) return false;
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            x[currentFocus].classList.add("autocomplete-active");
+        }
+
+        function removeActive(x) {
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+            }
+        }
+
+        function closeAllLists(elmnt) {
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+    }
+
+    // Initialize autocomplete for test name field
+    autocomplete(document.getElementById("test_name"), commonTests);
+
+    // Set maximum test_date to today (including current time)
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(now - offset).toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+    document.getElementById('test_date').max = localISOTime;
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const testName = document.getElementById('test_name').value.trim();
+        const result = document.getElementById('result').value.trim();
+        const testDate = document.getElementById('test_date').value;
+
+        if (!testName || !result || !testDate) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+            return false;
+        }
+
+        return true;
+    });
+
+    // Auto-hide flash messages after 5 seconds
+    setTimeout(() => {
+        const flashMessages = document.querySelectorAll('.alert');
+        flashMessages.forEach(msg => {
+            msg.style.transition = 'opacity 0.5s';
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 500);
+        });
+    }, 5000);
+</script>
+{% endblock %}
