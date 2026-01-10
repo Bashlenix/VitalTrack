@@ -243,8 +243,13 @@ def edit_radiology_imaging(imaging_id):
                 errors.append("Imaging name is required")
             if not imaging_date:
                 errors.append("Imaging date is required")
-            if not image_file:
-                errors.append("Image is required")
+
+            # Validate new image file if provided
+            if image_file and image_file.filename != "":
+                if not allowed_file(image_file.filename):
+                    errors.append(
+                        "Invalid file type. Allowed formats: PNG, JPG, JPEG, GIF, BMP, TIFF, DCM, DICOM"
+                    )
 
             if errors:
                 for error in errors:
@@ -272,6 +277,31 @@ def edit_radiology_imaging(imaging_id):
                     imaging_record.date = datetime.strptime(imaging_date, "%Y-%m-%d")
                 except ValueError:
                     flash("Invalid date format", "error")
+                    patients = (
+                        Patient.query.filter_by(doctor_id=doctor_id)
+                        .order_by(Patient.last_name)
+                        .all()
+                    )
+                    return render_template(
+                        "radiology/edit_radiology_imaging.html",
+                        imaging_record=imaging_record,
+                        patients=patients,
+                        datetime=datetime,
+                    )
+
+            # Handle file upload if a new file is provided
+            if image_file and image_file.filename != "":
+                # Delete old image file if it exists
+                old_filename = imaging_record.image_filename
+                if old_filename:
+                    delete_image_file(old_filename)
+
+                # Save new image file
+                new_filename = save_uploaded_file(image_file, imaging_record.patient_id)
+                if new_filename:
+                    imaging_record.image_filename = new_filename
+                else:
+                    flash("Failed to save uploaded image", "error")
                     patients = (
                         Patient.query.filter_by(doctor_id=doctor_id)
                         .order_by(Patient.last_name)
