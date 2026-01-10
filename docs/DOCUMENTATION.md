@@ -246,6 +246,8 @@ The page includes buttons to edit the patient, add medical history, schedule an 
 
 Figure 8 shows the edit patient form, which is similar to the add patient form but pre-filled with existing patient data. Doctors can update any patient information and save the changes. The system validates the input and updates the database accordingly.
 
+![Figure 8 - edit patient form.](/docs/images/08_edit_patient_form.png "Figure 8 - edit patient form.")
+
 #### 3.4.5 Deleting Patients
 
 Doctors can delete patients from the system. When a patient is deleted, all related records (appointments, lab results, radiology images, medical history) are also deleted to maintain database integrity. The system asks for confirmation before deletion.
