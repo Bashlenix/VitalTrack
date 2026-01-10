@@ -148,7 +148,7 @@ This section describes how to use the EHR system, including step-by-step instruc
 
 To use the system, doctors must first create an account. Figure 1 shows the registration page where new doctors can sign up.
 
-![Figure 1 - registration page.](/image/01_registration_page.png "Figure 1 - registration page.")
+![Figure 1 - registration page.](/images/01_registration_page.png "Figure 1 - registration page.")
 
 The registration form requires the following information:
 - First Name (optional)
@@ -165,13 +165,13 @@ After successful registration, the system hashes the password using Werkzeug's p
 
 Figure 2 shows the registration success page, which informs the user that a confirmation email has been sent.
 
-![Figure 2 - registration success page.](/image/02_registration_success_page.png "Figure 1 - registration success page.")
+![Figure 2 - registration success page.](/images/02_registration_success_page.png "Figure 1 - registration success page.")
 
 ### 3.2 Login
 
 Figure 3 shows the login page. Doctors can log in using either their username or email address along with their password.
 
-![Figure 3 - login page.](/image/03_login_page.png "Figure 3 - login page.")
+![Figure 3 - login page.](/images/03_login_page.png "Figure 3 - login page.")
 
 The login process works as follows:
 1. The user enters their username/email and password
@@ -186,7 +186,7 @@ The system uses Flask sessions to maintain the logged-in state. Once logged in, 
 
 Figure 4 shows the main dashboard, which is the central hub of the EHR system. After logging in, doctors are automatically redirected here.
 
-![Figure 4 - main dashboard.](/image/04_main_dashboard.png "Figure 4 - main dashboard.")
+![Figure 4 - main dashboard.](/images/04_main_dashboard.png "Figure 4 - main dashboard.")
 
 The dashboard displays:
 - **Recent Lab Results**: The 10 most recent laboratory test results for the doctor's patients, showing patient name, test name, result, and date
@@ -201,7 +201,7 @@ The dashboard provides a quick overview of recent activity and easy access to co
 
 Figure 5 shows the patients list page, which displays all patients belonging to the logged-in doctor in a table format.
 
-![Figure 5 - patients list page.](/image/05_patients_list_page.png "Figure 5 - patients list page.")
+![Figure 5 - patients list page.](/images/05_patients_list_page.png "Figure 5 - patients list page.")
 
 The page shows:
 - Patient basic information (name, email, phone, age, gender)
@@ -213,7 +213,7 @@ Each patient row includes action buttons to view details, edit, or delete the pa
 
 #### 3.4.2 Adding a New Patient
 
-![Figure 6 - patients list page.](/image/06_add_patient_form.png "Figure 6 - patients list page.")
+![Figure 6 - patients list page.](/images/06_add_patient_form.png "Figure 6 - patients list page.")
 
 Figure 6 shows the add patient form. To add a new patient, doctors must fill in:
 - First Name (required)
