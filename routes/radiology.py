@@ -73,6 +73,7 @@ def add_radiology_imaging():
             patient_id = request.form.get("patient_id", "").strip()
             imaging_name = request.form.get("imaging_name", "").strip()
             imaging_date = request.form.get("imaging_date", "").strip()
+            image_file = request.files.get("image_file")
 
             errors = []
             if not patient_id:
@@ -81,6 +82,8 @@ def add_radiology_imaging():
                 errors.append("Imaging name is required")
             if not imaging_date:
                 errors.append("Imaging date is required")
+            if not image_file:
+                errors.append("Image is required")
 
             # Handle file upload
             image_file = request.files.get("image_file")
@@ -233,12 +236,15 @@ def edit_radiology_imaging(imaging_id):
         if request.method == "POST":
             imaging_name = request.form.get("imaging_name", "").strip()
             imaging_date = request.form.get("imaging_date", "").strip()
+            image_file = request.files.get("image_file")
 
             errors = []
             if not imaging_name:
                 errors.append("Imaging name is required")
             if not imaging_date:
                 errors.append("Imaging date is required")
+            if not image_file:
+                errors.append("Image is required")
 
             if errors:
                 for error in errors:

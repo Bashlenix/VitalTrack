@@ -390,9 +390,9 @@
     document.addEventListener('DOMContentLoaded', function () {
         const allergyInput = document.getElementById('allergy_name');
 
-        if (databaseAllergies.length === 0) {
-            console.warn('No allergies found in database! Autocomplete will show no suggestions.');
-        }
+        // if (databaseAllergies.length === 0) {
+        //     console.warn('No allergies found in database! Autocomplete will show no suggestions.');
+        // }
 
         setupAllergyAutocomplete(allergyInput, databaseAllergies);
     });

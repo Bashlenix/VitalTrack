@@ -336,7 +336,7 @@ class RadiologyImaging(db.Model):
     name = db.Column(db.String(100), nullable=False)
     date = db.Column(db.DateTime, nullable=False, index=True)
     image_filename = db.Column(
-        db.String(255), nullable=True
+        db.String(255), nullable=False
     )  # Store uploaded image filename
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(

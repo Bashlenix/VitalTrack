@@ -15,7 +15,7 @@
         <div style="margin-bottom: 25px;">
             <label for="patient_id"
                 style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1em;">Select
-                Patient:</label>
+                Patient:<span class="required">*</span></label>
             <select name="patient_id" id="patient_id" required
                 style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; background: white; transition: all 0.3s ease; box-sizing: border-box;">
                 <option value="">Choose a patient...</option>
@@ -30,7 +30,7 @@
         <div style="margin-bottom: 25px;">
             <label for="imaging_name"
                 style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1em;">Imaging
-                Name:</label>
+                Name:<span class="required">*</span></label>
             <input type="text" name="imaging_name" id="imaging_name" required
                 placeholder="e.g., Chest X-Ray, CT Scan, MRI Brain..."
                 style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; box-sizing: border-box;">
@@ -39,7 +39,7 @@
         <div style="margin-bottom: 25px;">
             <label for="imaging_date"
                 style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1em;">Imaging
-                Date & Time:</label>
+                Date & Time:<span class="required">*</span></label>
             <input type="datetime-local" name="imaging_date" id="imaging_date" required
                 style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; box-sizing: border-box;">
         </div>
@@ -47,7 +47,7 @@
         <div style="margin-bottom: 30px;">
             <label for="image_file"
                 style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1em;">Upload
-                Image (Optional):</label>
+                Image:<span class="required">*</span></label>
             <div style="position: relative; display: inline-block; width: 100%;">
                 <input type="file" name="image_file" id="image_file"
                     accept=".png,.jpg,.jpeg,.gif,.bmp,.tiff,.dcm,.dicom"
@@ -72,6 +72,10 @@
 </div>
 
 <style>
+    .required {
+        color: #dc3545;
+    }
+
     /* Focus effects for form elements */
     select:focus,
     input:focus {

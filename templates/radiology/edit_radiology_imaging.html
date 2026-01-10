@@ -17,7 +17,7 @@
         <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
             <div
                 style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px 20px; border-radius: 10px; flex: 1; min-width: 200px;">
-                <div style="color: #6c757d; font-size: 0.9em; margin-bottom: 5px;">Patient Name</div>
+                <div style="color: #6c757d; font-size: 0.9em; margin-bottom: 5px;">Patient Name:<span class="required">*</span></div>
                 <div style="color: #333; font-weight: 600; font-size: 1.1em;">
                     {{ imaging_record.patient.first_name }} {{ imaging_record.patient.last_name }}
                 </div>
@@ -51,7 +51,7 @@
         <div style="margin-bottom: 25px;">
             <label for="imaging_name"
                 style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1em;">Imaging
-                Name:</label>
+                Name:<span class="required">*</span></label>
             <input type="text" name="imaging_name" id="imaging_name" required value="{{ imaging_record.name }}"
                 placeholder="e.g., Chest X-Ray, CT Scan, MRI Brain..."
                 style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; box-sizing: border-box;">
@@ -60,7 +60,7 @@
         <div style="margin-bottom: 25px;">
             <label for="imaging_date"
                 style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1em;">Imaging
-                Date & Time:</label>
+                Date & Time:<span class="required">*</span></label>
             <input type="datetime-local" name="imaging_date" id="imaging_date" required
                 value="{{ imaging_record.date.strftime('%Y-%m-%dT%H:%M') }}"
                 style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; transition: all 0.3s ease; box-sizing: border-box;">
@@ -69,8 +69,8 @@
         <div style="margin-bottom: 30px;">
             <label for="image_file"
                 style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1em;">
-                {% if imaging_record.image_filename %}Replace Image (Optional):{% else %}Upload Image (Optional):{%
-                endif %}
+                {% if imaging_record.image_filename %}Replace Image:{% else %}Upload Image:{%
+                endif %}<span class="required">*</span></label>
             </label>
             <div style="position: relative; display: inline-block; width: 100%;">
                 <input type="file" name="image_file" id="image_file"
@@ -121,6 +121,10 @@
 </div>
 
 <style>
+    .required {
+        color: #dc3545;
+    }
+    
     /* Focus effects for form elements */
     input:focus {
         border-color: #667eea !important;
