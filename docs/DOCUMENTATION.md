@@ -213,7 +213,7 @@ Each patient row includes action buttons to view details, edit, or delete the pa
 
 #### 3.4.2 Adding a New Patient
 
-![Figure 6 - patients list page.](/docs/images/06_add_patient_form.png "Figure 6 - patients list page.")
+![Figure 6 - add patient form.](/docs/images/06_add_patient_form.png "Figure 6 - add patient form.")
 
 Figure 6 shows the add patient form. To add a new patient, doctors must fill in:
 - First Name (required)
@@ -227,6 +227,8 @@ Figure 6 shows the add patient form. To add a new patient, doctors must fill in:
 The form validates that required fields are filled and that the date of birth is valid. When submitted, the system creates a new patient record linked to the logged-in doctor. The patient is immediately available in the system for appointments, lab results, and other records.
 
 #### 3.4.3 Viewing Patient Details
+
+![Figure 7 - detailed patient view page.](/docs/images/07_detailed_patient_view_page.png "Figure 7 - detailed patient view page.")
 
 Figure 7 shows the detailed patient view page. This page displays comprehensive information about a single patient:
 
