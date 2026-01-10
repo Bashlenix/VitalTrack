@@ -4,9 +4,9 @@
 <div class="container">
     <div class="header">
         <h1>Edit Patient</h1>
-        <div class="header-actions">
+        <!-- <div class="header-actions">
             <a href="{{ url_for('patients.view_patient', patient_id=patient.id) }}" class="btn btn-secondary">Back</a>
-        </div>
+        </div> -->
     </div>
 
     <form method="POST" class="form-container">
@@ -151,6 +151,35 @@
 </div>
 
 <style>
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #007bff;
+    }
+
+    .header h1 {
+        color: #007bff;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 15px;
+    }
+
     .form-container {
         background: white;
         padding: 30px;
