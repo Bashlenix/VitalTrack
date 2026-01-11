@@ -256,6 +256,8 @@ Doctors can delete patients from the system. When a patient is deleted, all rela
 
 #### 3.5.1 Viewing Appointments
 
+![Figure 9 - appointments list page.](/docs/images/09_appointments_list_page.png "Figure 9 - appointments list page.")
+
 Figure 9 shows the appointments list page, which displays all appointments for the logged-in doctor. The page shows:
 - Patient name
 - Appointment type (consultation, follow-up, emergency, check-up, surgery, procedure)
@@ -266,6 +268,8 @@ Figure 9 shows the appointments list page, which displays all appointments for t
 The page includes statistics showing total appointments, upcoming appointments, completed appointments, and breakdown by status. Each appointment can be viewed, edited, or deleted.
 
 #### 3.5.2 Scheduling an Appointment
+
+![Figure 10 - schedule appointment form.](/docs/images/10_schedule_appointment_form.png "Figure 10 - schedule appointment form.")
 
 Figure 10 shows the schedule appointment form. To schedule a new appointment:
 1. Select a patient from the dropdown (only shows patients belonging to the logged-in doctor)
@@ -282,11 +286,15 @@ After scheduling, the appointment appears in the appointments list and on the da
 
 #### 3.5.3 Viewing and Editing Appointments
 
+![Figure 11 - appointment detail view.](/docs/images/11_appointment_detail_view.png "Figure 11 - appointment detailview.")
+
 Figure 11 shows the appointment detail view, which displays all information about a specific appointment. Doctors can edit appointments to change the date, time, type, status, or notes. The system prevents scheduling conflicts by checking for existing appointments at the same time.
 
 ### 3.6 Laboratory Results Management
 
 #### 3.6.1 Viewing Lab Results
+
+![Figure 12 - lab results list page](/docs/images/12_lab_results_list_page.png "Figure 12 - lab results list page.")
 
 Figure 12 shows the lab results list page, displaying all laboratory test results for the doctor's patients. Each result shows:
 - Patient name
@@ -301,6 +309,8 @@ Figure 12 shows the lab results list page, displaying all laboratory test result
 The page includes statistics showing total results, recent results (within 7 days), and a list of unique test types in the system.
 
 #### 3.6.2 Adding Lab Results
+
+![Figure 13 - add lab result form](/docs/images/13_add_lab_result_form.png "Figure 13 - add lab result form.")
 
 Figure 13 shows the add lab result form. To add a new lab result:
 1. Select a patient
@@ -322,6 +332,8 @@ Doctors can edit existing lab results to correct errors or update information. T
 
 #### 3.7.1 Viewing Radiology Images
 
+![Figure 14 - radiology imaging list page](/docs/images/14_radiology_imaging_list_page.png "Figure 14 - radiology imaging list page.")
+
 Figure 14 shows the radiology imaging list page, displaying all radiology imaging records for the doctor's patients. The page shows:
 - Patient name
 - Imaging name/type (e.g., "Chest X-Ray", "MRI Brain")
@@ -332,6 +344,8 @@ The page includes search functionality to filter by patient name or imaging name
 
 #### 3.7.2 Adding Radiology Imaging
 
+![Figure 15 - radiology imaging form](/docs/images/15_radiology_imaging_form.png "Figure 15 - radiology imaging form.")
+
 Figure 15 shows the add radiology imaging form. To add a new imaging record:
 1. Select a patient
 2. Enter imaging name/type
@@ -340,11 +354,7 @@ Figure 15 shows the add radiology imaging form. To add a new imaging record:
 
 The system validates the file type and size (maximum 10MB). Uploaded images are stored in organized folders by patient ID for easy management. The image filename is stored in the database, and the actual file is saved in the `static/uploads/radiology/patient_X/` directory.
 
-#### 3.7.3 Viewing Radiology Images
-
-Figure 16 shows the radiology imaging detail view, which displays the full-size image along with patient information and imaging details. Doctors can view the image to analyze it as part of patient care.
-
-#### 3.7.4 Editing and Deleting Radiology Records
+#### 3.7.3 Editing and Deleting Radiology Records
 
 Doctors can edit imaging records to update the name or date. When deleting a radiology record, the associated image file is also deleted from the server to save storage space.
 
@@ -352,7 +362,9 @@ Doctors can edit imaging records to update the name or date. When deleting a rad
 
 #### 3.8.1 Adding Medical History
 
-Figure 17 shows the add medical history form. Medical history entries link patients to allergies or medical conditions. To add a medical history entry:
+![Figure 16 - add medical history form](/docs/images/16_add_medical_history_form.png "Figure 16 - add medical history form.")
+
+Figure 16 shows the add medical history form. Medical history entries link patients to allergies or medical conditions. To add a medical history entry:
 1. Select a patient
 2. Enter or select an allergy/condition name (the system includes common allergies like Penicillin, Peanuts, Shellfish, etc., or doctors can enter new ones)
 3. Enter a description of the condition, reaction, or relevant details
@@ -375,28 +387,37 @@ Doctors can edit medical history entries to update descriptions or dates, or cor
 
 ### 3.9 Doctor Profile Management
 
-Figure 18 shows the doctor profile page, where doctors can view and edit their own information. Doctors can update:
-- First name and last name
-- Username
+![Figure 17 - doctor profile page](/docs/images/17_doctor_profile_page.png "Figure 17 - doctor profile page.")
+
+Figure 17 shows the doctor profile page, where doctors can view and edit their own information. Doctors can update:
+- First name
+- Last name
 - Email address
 - Phone number
-- Specialty (currently displays and allows editing of one specialty, though the database model supports multiple)
 
-This allows doctors to keep their information current. The system validates changes and ensures usernames and emails remain unique.
+This allows doctors to keep their information updated. The system validates changes and ensures emails remains unique.
 
 ### 3.10 Password Management
 
 #### 3.10.1 Forgot Password
 
-If a doctor forgets their password, they can use the "Forgot Password" feature. Figure 19 shows the forgot password form where doctors enter their email address. The system sends a password reset link to the registered email. This link contains a secure token that expires after 24 hours.
+![Figure 18 - forgot password form](/docs/images/18_forgot_password_form.png "Figure 18 - forgot password form.")
+
+If a doctor forgets their password, they can use the "Forgot Password" feature. Figure 18 shows the forgot password form where doctors enter their email address. The system sends a password reset link to the registered email. This link contains a secure token that expires after 24 hours.
 
 #### 3.10.2 Reset Password
 
-Figure 20 shows the password reset form, accessible via the link sent in the email. Doctors enter a new password that must meet the same strength requirements as during registration. After resetting, doctors can log in with their new password.
+![Figure 19 - password reset form](/docs/images/19_password_reset_form.png "Figure 19 - password reset form.")
+
+Figure 19 shows the password reset form, accessible via the link sent in the email. Doctors enter a new password that must meet the same strength requirements as during registration. After resetting, doctors can log in with their new password.
 
 ### 3.11 About Us Page
 
-Figure 21 shows the About Us page, which displays system-wide statistics:
+![Figure 20 - About Us page](/docs/images/20_About_Us_page.png "Figure 20 - password reset form.")
+
+![Figure 21 - About Us page](/docs/images/21_About_Us_page.png "Figure 21 - password reset form.")
+
+Figure 20 and Figure 21 show the About Us page, which displays system-wide statistics:
 - Total number of patients in the system
 - Total number of appointments
 - Total number of lab results
@@ -449,7 +470,7 @@ The 10 SUS statements are:
 
 ### 4.2 Evaluation Process
 
-For this project evaluation, I asked one person (a fellow student) to use the system and complete the SUS questionnaire. While SUS is often used with multiple evaluators, using a single evaluator is acceptable for academic projects, especially when the focus is on demonstrating understanding of the evaluation methodology rather than obtaining statistically significant results.
+For this project evaluation, I asked one person (a fellow student) to use the system and complete the SUS questionnaire. While SUS is often used with multiple evaluators, I used a single evaluator to get a depper understanding of the evaluation methodology.
 
 The evaluator was given access to the system and asked to:
 1. Register a new doctor account
@@ -462,20 +483,20 @@ The evaluator was given access to the system and asked to:
 8. View patient details
 9. Complete the SUS questionnaire
 
-The evaluator used the system for approximately 30 minutes to complete these tasks and then filled out the SUS questionnaire.
+The evaluator used the system for approximately 15-20 minutes to complete these tasks and then filled out the SUS questionnaire.
 
 ### 4.3 SUS Score Calculation
 
-SUS scores are calculated using a specific formula:
+SUS scores are calculated using the specific formula below:
 
-1. For odd-numbered items (1, 3, 5, 7, 9): Subtract 1 from the score
-2. For even-numbered items (2, 4, 6, 8, 10): Subtract the score from 5
+1. For odd-numbered items (1, 3, 5, 7, 9): Subtract 1 from the user score
+2. For even-numbered items (2, 4, 6, 8, 10): Subtract the user score from 5
 3. Sum all the adjusted scores
 4. Multiply the sum by 2.5 to get the final SUS score (ranging from 0 to 100)
 
-**Example Calculation:**
+**Evaluator Responses:**
 
-Suppose an evaluator provided the following responses:
+The evaluator provided the following responses:
 - Statement 1: 4 (Strongly Agree)
 - Statement 2: 2 (Disagree)
 - Statement 3: 5 (Strongly Agree)
@@ -516,7 +537,7 @@ In the example calculation above, a score of 77.5 indicates good usability, abov
 
 The SUS evaluation helps identify areas where the system performs well and areas that could be improved. Positive responses to statements like "I thought the system was easy to use" and "I would imagine that most people would learn to use this system very quickly" indicate good usability. Negative responses to statements like "I found the system unnecessarily complex" and "I found the system very cumbersome to use" would indicate areas needing improvement.
 
-The evaluation process demonstrates understanding of usability testing methodology. While a single evaluator provides limited statistical significance, it still offers valuable insights into the system's usability and helps identify potential improvements. For a production system, multiple evaluators would be recommended to get more reliable results, but for this academic project, the focus is on demonstrating knowledge of the evaluation process rather than achieving perfect usability scores.
+The evaluation process demonstrates understanding of usability testing methodology. While a single evaluator provides limited statistical significance, it still offers valuable insights into the system's usability and helps identify potential improvements.
 
 ---
 
@@ -555,4 +576,4 @@ While the system provides essential EHR functionality, there are several limitat
 
 8. **Multiple Specialties Support**: The database model was initially designed to support a many-to-many relationship between doctors and specialties, allowing doctors to have multiple specialties. However, due to time constraints, the implementation was simplified to handle only one specialty per doctor. The registration form, profile editing, and display logic all treat doctors as having a single specialty, even though the database structure supports multiple. Implementing full multiple specialties support would require updating the registration form to allow selecting multiple specialties, modifying the profile edit page to manage specialty lists, and updating the display logic to show all specialties instead of just the first one.
 
-This project provided valuable hands-on experience in full-stack web development and healthcare information systems. While it may not have all the features of commercial EHR systems, it has the the core elements and functionality needed for managing patient health records in a digital format.
+This project provided me a valuable hands-on experience in full-stack web development and healthcare information systems. While it may not have all the features of commercial EHR systems, I made sure to have the core elements and functionality needed implemented for managing patient health records in a digital format.
