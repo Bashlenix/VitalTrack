@@ -2,6 +2,10 @@
 
 {% block title %}Edit Radiology Imaging{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/radiology/forms.css') }}">
+{% endblock %}
+
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Arial', sans-serif;">
     <div
@@ -119,55 +123,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .required {
-        color: #dc3545;
-    }
-    
-    /* Focus effects for form elements */
-    input:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-        outline: none !important;
-    }
-
-    /* Hover effects for buttons */
-    button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
-    }
-
-    a:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.6) !important;
-    }
-
-    /* Responsive design */
-    @media (max-width: 600px) {
-        div[style*="max-width: 800px"] {
-            padding: 10px !important;
-        }
-
-        form {
-            padding: 20px !important;
-        }
-
-        div[style*="display: flex"] {
-            flex-direction: column !important;
-        }
-
-        button,
-        a {
-            width: 100% !important;
-            margin-bottom: 10px !important;
-        }
-
-        div[style*="display: grid"] {
-            grid-template-columns: 1fr !important;
-        }
-    }
-</style>
 
 <!-- Image Modal -->
 <div id="imageModal"

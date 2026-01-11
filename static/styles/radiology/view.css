@@ -1,0 +1,43 @@
+/* Radiology View Page Styles */
+
+/* Hover effects */
+a:hover, button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+}
+
+/* Focus effects */
+input:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    outline: none !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    div[style*="max-width: 1200px"] {
+        padding: 10px !important;
+    }
+    
+    div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    form[method="GET"] div {
+        min-width: auto !important;
+    }
+    
+    table {
+        font-size: 0.9em !important;
+    }
+    
+    th, td {
+        padding: 10px !important;
+    }
+    
+    div[style*="justify-content: center"] {
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+}

@@ -1,0 +1,59 @@
+/* Radiology Forms Styles - Used for add/edit radiology imaging pages */
+
+.required {
+    color: #dc3545;
+}
+
+/* Focus effects for form elements */
+select:focus,
+input:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    outline: none !important;
+}
+
+/* Hover effects for buttons */
+button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+}
+
+a:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.6) !important;
+}
+
+/* Select dropdown styling */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    div[style*="max-width: 800px"] {
+        padding: 10px !important;
+    }
+
+    form {
+        padding: 20px !important;
+    }
+
+    div[style*="display: flex"] {
+        flex-direction: column !important;
+    }
+
+    button,
+    a {
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+
+    div[style*="display: grid"] {
+        grid-template-columns: 1fr !important;
+    }
+}
