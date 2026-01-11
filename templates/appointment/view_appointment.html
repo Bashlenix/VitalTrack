@@ -3,50 +3,7 @@
 {% block title %}View Appointment{% endblock %}
 
 {% block extra_css %}
-<style>
-    /* Custom button group styling */
-    .btn-group-custom {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
-    
-    .btn-group-custom .btn {
-        margin: 0;
-        border-radius: 8px !important;
-        font-weight: 600;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
-        border: none;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .btn-group-custom .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .btn-group-custom .btn i {
-        font-size: 14px;
-    }
-    
-    /* Responsive design for smaller screens */
-    @media (max-width: 768px) {
-        .btn-group-custom {
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .btn-group-custom .btn {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/appointment/view_appointment.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -191,7 +148,7 @@
                                 <a href="{{ url_for('appointments.edit_appointment', appointment_id=appointment.id) }}" class="btn btn-warning">
                                     <i class="fas fa-edit"></i> Edit Appointment
                                 </a>
-                                <a href="{{ url_for('appointments.view_appointments') }}" class="btn btn-secondary" style="color: white;">
+                                <a href="{{ url_for('appointments.view_appointments') }}" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left"></i> Back to Appointments
                                 </a>
                                 <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
