@@ -170,6 +170,11 @@ button:hover {
     border: 1px solid #ffeaa7;
 }
 
+.password-hint {
+    color: #666;
+    font-size: 12px;
+}
+
 .password-strength {
     height: 5px;
     margin-top: 5px;
