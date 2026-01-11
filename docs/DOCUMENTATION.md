@@ -450,7 +450,7 @@ Each feature is designed to be useful in real healthcare scenarios. For example,
 
 ## 4. Evaluation of the EHR Information System
 
-To assess the usability of the EHR system, I conducted a usability evaluation using the System Usability Scale (SUS) methodology. SUS is a widely used, reliable tool for measuring the perceived usability of systems.
+To assess the usability of this EHR system, I conducted a usability evaluation using the System Usability Scale (SUS) methodology. SUS is a widely used, reliable tool for measuring the perceived usability of systems.
 
 ### 4.1 SUS Methodology
 
@@ -470,7 +470,7 @@ The 10 SUS statements are:
 
 ### 4.2 Evaluation Process
 
-For this project evaluation, I asked one person (a fellow student) to use the system and complete the SUS questionnaire. While SUS is often used with multiple evaluators, I used a single evaluator to get a depper understanding of the evaluation methodology.
+For this project evaluation, I asked one person (a fellow student) to use the system and complete the SUS questionnaire. While SUS is often used with multiple evaluators, I used a single evaluator to get a deeper understanding of the evaluation methodology.
 
 The evaluator was given access to the system and asked to:
 1. Register a new doctor account
@@ -532,12 +532,6 @@ SUS scores range from 0 to 100, with higher scores indicating better usability. 
 - Below 50: Poor usability
 
 In the example calculation above, a score of 77.5 indicates good usability, above the 68 benchmark. This suggests the system is relatively easy to use and learn.
-
-### 4.5 Evaluation Results Discussion
-
-The SUS evaluation helps identify areas where the system performs well and areas that could be improved. Positive responses to statements like "I thought the system was easy to use" and "I would imagine that most people would learn to use this system very quickly" indicate good usability. Negative responses to statements like "I found the system unnecessarily complex" and "I found the system very cumbersome to use" would indicate areas needing improvement.
-
-The evaluation process demonstrates understanding of usability testing methodology. While a single evaluator provides limited statistical significance, it still offers valuable insights into the system's usability and helps identify potential improvements.
 
 ---
 
