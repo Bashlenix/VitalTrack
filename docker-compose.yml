@@ -1,0 +1,82 @@
+services:
+  # This section defines what containers should run.
+  # db → MySQL database , web → Flask EHR application
+
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: vitaltrack_db
+    restart: unless-stopped
+    environment:
+      # Initialize MySQL on first startup configuration
+      # ${VAR:-default} syntax means: Use .env value if available, otherwise fall back to a safe default
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-vitaltrack}
+      MYSQL_USER: ${MYSQL_USER:-vitaltrack_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-vitaltrack_password}
+    volumes:
+      # Storing MySQL data, ensures data is not lost when containers restart
+      - mysql_data:/var/lib/mysql
+      # On first run only, MySQL executes this file which creates tables and initial data
+      # It allows the project to start with a preconfigured schema and sample data without manual setup.
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      # Inside container: MySQL runs on 3306, On host: exposed as 3307
+      # This avoids conflict with local MySQL already running on 3306
+      - "3307:3306"
+    healthcheck:
+      # Health check prevents the Flask app from starting before the database is ready
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      # Puts MySQL on a private Docker bridge network, Allows other containers to reach it by service name (db)
+      - vitaltrack_network
+
+  # Flask Web Application Service
+  web:
+    # Uses your Dockerfile to build a custom image from my project which Includes Python, dependencies, and app code
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vitaltrack_web
+    restart: unless-stopped
+    # Load environment variables from .env file
+    env_file:
+      - .env
+    environment:
+      # Override database host to use Docker Compose service name
+      # This ensures Flask connects to MySQL using the service name 'db' instead of 'localhost'
+      DB_HOST: db
+      DB_PORT: 3306
+      # Database connection variables, keeping them DB config persistent between services
+      DB_NAME: ${MYSQL_DATABASE:-vitaltrack}
+      DB_USER: ${MYSQL_USER:-vitaltrack_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-vitaltrack_password}
+      # Flask host configuration
+      FLASK_HOST: 0.0.0.0 #allows access from outside the container
+      FLASK_PORT: 5000 # Flask listens internally on 5000
+      HOST_PORT: 5001 # Host maps to 5001
+    ports:
+      # Expose Flask application on port 5000
+      - "5001:5000" # Host maps to 5001
+    volumes:
+      # Persist uploaded radiology files, so they persist even if container is stopped
+      - ./static/uploads:/app/static/uploads
+    depends_on:
+      # Uses the healthcheck defined earlier,Flask starts only after MySQL is ready
+      db:
+        condition: service_healthy
+    networks:
+      - vitaltrack_network
+
+# Named volumes for data persistence
+volumes:
+  mysql_data:
+    driver: local
+
+# Docker network for service communication, allows containers to reach each other by service name (db), Not exposed publicly (from outside the Docker network)
+networks:
+  vitaltrack_network:
+    driver: bridge

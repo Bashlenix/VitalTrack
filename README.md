@@ -99,3 +99,122 @@
 - MySQL service is running
 - Database credentials in `.env` are correct
 - The database specified in `SQLALCHEMY_DATABASE_URI` exists
+
+---
+
+## Docker Setup (Alternative Installation Method)
+
+This project is containerized using Docker and Docker Compose, making it easy to run the entire application stack with a single command.
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/get-started) (version 20.10 or later)
+- [Docker Compose](https://docs.docker.com/compose/install/) (version 2.0 or later)
+
+### Quick Start with Docker
+
+1. **Ensure you have a `.env` file**:
+   
+   The `.env` file should contain all required environment variables. The Docker setup will automatically use the database service name `db` instead of `localhost` when running in containers.
+
+   **Important**: For Docker, you don't need to set `SQLALCHEMY_DATABASE_URI` in your `.env` file. Instead, the following variables will be used to construct the connection string:
+   - `MYSQL_DATABASE`: Database name (default: `vitaltrack`)
+   - `MYSQL_USER`: Database user (default: `vitaltrack_user`)
+   - `MYSQL_PASSWORD`: Database password (default: `vitaltrack_password`)
+   - `MYSQL_ROOT_PASSWORD`: MySQL root password (default: `rootpassword`)
+
+   You can also set these in your `.env` file, or they will use the defaults specified in `docker-compose.yml`.
+
+   **Database Initialization**: The MySQL container automatically initializes the database from `./db/init.sql` on first run. The SQL dump will be executed in the database specified by `MYSQL_DATABASE`. Ensure the database name in your environment variables matches what your application expects.
+
+   Your `.env` file should still contain:
+   - `SECRET_KEY`: Flask secret key
+   - `SECURITY_PASSWORD_SALT`: Password reset salt
+   - Email configuration variables (`MAIL_SERVER`, `MAIL_PORT`, etc.)
+
+2. **Build and start the containers**:
+   ```bash
+   docker-compose up --build
+   ```
+   
+   This command will:
+   - Build the Flask application Docker image
+   - Start the MySQL database container
+   - **Automatically initialize the database** from `./db/init.sql` on first run
+   - Start the Flask web application container
+   - Wait for MySQL to be ready before starting Flask
+
+   **Note**: The MySQL container automatically executes the SQL dump file (`./db/init.sql`) on first initialization. This happens when the data directory is empty, so you don't need to manually run database initialization scripts.
+
+3. **Access the application**:
+   
+   Open your web browser and navigate to `http://localhost:5001` to access the EHR system.
+   
+   **Note**: The Flask application is exposed on host port **5001** (mapped to container port 5000). The MySQL database is exposed on host port **3307** (mapped to container port 3306) for external access if needed.
+
+### Docker Commands Reference
+
+- **Start containers in detached mode** (background):
+  ```bash
+  docker-compose up -d
+  ```
+
+- **View container logs**:
+  ```bash
+  docker-compose logs -f
+  ```
+
+- **Stop containers**:
+  ```bash
+  docker-compose down
+  ```
+
+- **Stop containers and remove volumes** (⚠️ This will delete all data):
+  ```bash
+  docker-compose down -v
+  ```
+
+- **Rebuild containers after code changes**:
+  ```bash
+  docker-compose up --build
+  ```
+
+- **Execute commands in the Flask container**:
+  ```bash
+  docker-compose exec web <command>
+  ```
+
+- **Access MySQL directly**:
+  ```bash
+  docker-compose exec db mysql -u root -p
+  ```
+  
+  Or connect from your host machine (if you have MySQL client installed):
+  ```bash
+  mysql -h 127.0.0.1 -P 3307 -u root -p
+  ```
+
+### Data Persistence
+
+- **MySQL Data**: Stored in a Docker volume named `mysql_data`. This persists even if containers are stopped.
+- **Uploaded Files**: The `static/uploads/` directory is mounted as a volume, so uploaded files persist on your host machine.
+
+### Troubleshooting Docker Setup
+
+1. **Port conflicts**:
+   - Flask application uses host port **5001** (change `"5001:5000"` in `docker-compose.yml` if needed)
+   - MySQL uses host port **3307** (change `"3307:3306"` in `docker-compose.yml` if needed)
+   - Update the `HOST_PORT` environment variable in `docker-compose.yml` to match the host port if you change it
+
+2. **Database connection errors**:
+   - Ensure the `db` service is healthy before Flask starts (health checks are configured)
+   - Verify MySQL credentials in your `.env` file match those in `docker-compose.yml`
+
+3. **Permission errors with uploads**:
+   - Ensure the `static/uploads/` directory exists and has proper permissions
+   - The Docker container will create the directory structure if needed
+
+4. **View container status**:
+   ```bash
+   docker-compose ps
+   ```

@@ -2,6 +2,7 @@
 Main Flask application factory for the EHR system.
 """
 
+import os
 from flask import Flask
 from config import Config
 from models import db
@@ -53,4 +54,9 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    host = os.getenv("FLASK_HOST", "0.0.0.0")  # container listens on all interfaces
+    port = int(os.getenv("FLASK_PORT", 5000))  # container port
+    host_port = os.getenv("HOST_PORT", str(port))  # host port for logging
+
+    print(f" * Flask app running at http://127.0.0.1:{host_port} (access via host)")
+    app.run(host=host, port=port, debug=True)
