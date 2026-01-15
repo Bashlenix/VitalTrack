@@ -23,7 +23,7 @@ services:
     ports:
       # Inside container: MySQL runs on 3306, On host: exposed as 3307
       # This avoids conflict with local MySQL already running on 3306
-      - "3307:3306"
+      [] #Flask app connects to MySQL inside Docker, so MySQL does not need a host port.
     healthcheck:
       # Health check prevents the Flask app from starting before the database is ready
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]

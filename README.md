@@ -150,7 +150,7 @@ This project is containerized using Docker and Docker Compose, making it easy to
    
    Open your web browser and navigate to `http://localhost:5001` to access the EHR system.
    
-   **Note**: The Flask application is exposed on host port **5001** (mapped to container port 5000). The MySQL database is exposed on host port **3307** (mapped to container port 3306) for external access if needed.
+   **Note**: The Flask application is exposed on host port **5001** (mapped to container port 5000).
 
 ### Docker Commands Reference
 
@@ -182,16 +182,6 @@ This project is containerized using Docker and Docker Compose, making it easy to
 - **Execute commands in the Flask container**:
   ```bash
   docker-compose exec web <command>
-  ```
-
-- **Access MySQL directly**:
-  ```bash
-  docker-compose exec db mysql -u root -p
-  ```
-  
-  Or connect from your host machine (if you have MySQL client installed):
-  ```bash
-  mysql -h 127.0.0.1 -P 3307 -u root -p
   ```
 
 ### Data Persistence
