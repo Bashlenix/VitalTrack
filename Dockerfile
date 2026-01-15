@@ -1,3 +1,5 @@
+#The Dockerfile defines how the Flask application image is built
+
 # Use Python 3.11 as the base image
 FROM python:3.11-slim
 
