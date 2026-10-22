@@ -61,7 +61,7 @@ services:
     volumes:
       # Persist uploaded radiology files in a named volume. On first start Docker
       # fills it from the image (sample images, owned by the non-root app user).
-      - uploads_data:/app/static/uploads
+      - uploads_data:/app/uploads
     healthcheck:
       # App is healthy once /health answers, which also checks the database connection
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health', timeout=3)"]

@@ -48,6 +48,31 @@ def csrf_token_from(html):
     return match.group(1) if match else None
 
 
+def post_multipart(opener, path, fields, file_field, filename, content):
+    _, _, page = get_status(path, opener=opener)
+    token = csrf_token_from(page)
+    if token:
+        fields = {**fields, "csrf_token": token}
+    boundary = uuid.uuid4().hex
+    parts = [
+        f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode()
+        for name, value in fields.items()
+    ]
+    parts.append(
+        f'--{boundary}\r\nContent-Disposition: form-data; name="{file_field}"; '
+        f'filename="{filename}"\r\nContent-Type: image/png\r\n\r\n'.encode()
+        + content
+        + f"\r\n--{boundary}--\r\n".encode()
+    )
+    request = urllib.request.Request(
+        BASE_URL + path,
+        data=b"".join(parts),
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+    )
+    with opener.open(request, timeout=10) as response:
+        return response.geturl(), response.read().decode(errors="replace")
+
+
 def post_form(opener, path, fields):
     _, _, page = get_status(path, opener=opener)
     token = csrf_token_from(page)
@@ -140,3 +165,31 @@ def test_doctor_cannot_open_other_doctors_image(doctor_session_no_redirect):
         f"/radiology_image/{SEED_IMAGE}", opener=doctor_session_no_redirect
     )
     assert status == 302
+
+
+def test_uploaded_image_only_reachable_by_owning_doctor(
+    doctor_session, doctor_session_no_redirect
+):
+    image = b"\x89PNG\r\n\x1a\n" + uuid.uuid4().bytes
+    _, _, before = get_status("/view_radiology_imaging", opener=doctor_session)
+    _, page = post_multipart(
+        doctor_session,
+        "/add_radiology_imaging",
+        {
+            "patient_id": os.environ["CI_PATIENT_ID"],
+            "imaging_name": "Integration X-ray",
+            "imaging_date": "2026-01-02T10:30",
+        },
+        "image_file",
+        "xray.png",
+        image,
+    )
+    image_path = r"/radiology_image/(patient_\d+/[0-9a-f-]+\.png)"
+    new_paths = set(re.findall(image_path, page)) - set(re.findall(image_path, before))
+    assert len(new_paths) == 1, "uploaded image not listed"
+    path = new_paths.pop()
+
+    status, _, _ = get_status(f"/radiology_image/{path}", opener=doctor_session_no_redirect)
+    assert status == 200
+    assert get_status(f"/radiology_image/{path}")[0] == 302
+    assert get_status(f"/static/uploads/radiology/{path}")[0] == 404

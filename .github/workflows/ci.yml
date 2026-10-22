@@ -184,7 +184,10 @@ jobs:
       - name: Start stack (app + MySQL) and wait until healthy
         run: docker compose up -d --no-build --wait --wait-timeout 180
       - name: Create CI doctor account
-        run: docker compose exec -T -e CI_DOCTOR_USERNAME -e CI_DOCTOR_EMAIL -e CI_DOCTOR_PASSWORD web python scripts/create_ci_doctor.py
+        run: |
+          patient_id=$(docker compose exec -T -e CI_DOCTOR_USERNAME -e CI_DOCTOR_EMAIL -e CI_DOCTOR_PASSWORD web python scripts/create_ci_doctor.py | tail -n 1)
+          [[ "$patient_id" =~ ^[0-9]+$ ]] || { echo "Unexpected patient id: $patient_id"; exit 1; }
+          echo "CI_PATIENT_ID=$patient_id" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
