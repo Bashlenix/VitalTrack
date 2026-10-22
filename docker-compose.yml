@@ -55,16 +55,13 @@ services:
       DB_NAME: ${MYSQL_DATABASE:-vitaltrack}
       DB_USER: ${MYSQL_USER:-vitaltrack_user}
       DB_PASSWORD: ${MYSQL_PASSWORD:-vitaltrack_password}
-      # Flask host configuration
-      FLASK_HOST: 0.0.0.0 #allows access from outside the container
-      FLASK_PORT: 5000 # Flask listens internally on 5000
-      HOST_PORT: 5001 # Host maps to 5001
     ports:
       # Expose Flask application on port 5000
       - "5001:5000" # Host maps to 5001
     volumes:
-      # Persist uploaded radiology files, so they persist even if container is stopped
-      - ./static/uploads:/app/static/uploads
+      # Persist uploaded radiology files in a named volume. On first start Docker
+      # fills it from the image (sample images, owned by the non-root app user).
+      - uploads_data:/app/static/uploads
     healthcheck:
       # App is healthy once /health answers, which also checks the database connection
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health', timeout=3)"]
@@ -81,6 +78,8 @@ services:
 # Named volumes for data persistence
 volumes:
   mysql_data:
+    driver: local
+  uploads_data:
     driver: local
 
 # Docker network for service communication, allows containers to reach each other by service name (db), Not exposed publicly (from outside the Docker network)
