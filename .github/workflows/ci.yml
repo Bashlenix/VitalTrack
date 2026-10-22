@@ -57,10 +57,13 @@ jobs:
           cache-dependency-path: requirements*.txt
       - run: pip install -r requirements-dev.txt
       - name: pytest (unit, route and patient-data protection tests)
-        run: pytest -m "not integration" --junitxml=reports/junit.xml -ra
+        run: |
+          mkdir -p reports
+          pytest -m "not integration" --junitxml=reports/junit.xml -ra | tee reports/pytest.txt
       - name: Summary
         if: always()
-        run: python .github/scripts/junit_summary.py "Unit tests" reports/junit.xml >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "### Unit tests: $(tail -n 1 reports/pytest.txt 2>/dev/null || echo 'did not run')" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -191,10 +194,13 @@ jobs:
       - name: Integration tests against the live stack
         env:
           VITALTRACK_BASE_URL: http://localhost:5001
-        run: pytest tests/integration -ra --junitxml=reports/integration.xml
+        run: |
+          mkdir -p reports
+          pytest tests/integration -ra --junitxml=reports/integration.xml | tee reports/pytest.txt
       - name: Summary
         if: always()
-        run: python .github/scripts/junit_summary.py "Integration tests (live stack)" reports/integration.xml >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "### Integration tests (live stack): $(tail -n 1 reports/pytest.txt 2>/dev/null || echo 'did not run')" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
