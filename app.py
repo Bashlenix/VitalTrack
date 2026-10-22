@@ -20,10 +20,13 @@ from routes.doctor import doctor_bp
 from routes.medical_history import medical_history_bp
 
 
-def create_app():
-    """Application factory pattern for creating Flask app."""
+def create_app(config_overrides=None):
+    """Application factory pattern for creating Flask app.
+    config_overrides (dict) is applied on top of Config, e.g. by tests."""
     app = Flask(__name__)
     app.config.from_object(Config)
+    if config_overrides:
+        app.config.update(config_overrides)
 
     # Ensure secret key is configured for sessions
     if not app.config.get("SECRET_KEY"):

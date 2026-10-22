@@ -2,8 +2,10 @@
 Main navigation and dashboard routes for the EHR system.
 """
 
-from flask import Blueprint, redirect, url_for, flash, render_template, session
+from flask import Blueprint, redirect, url_for, flash, render_template, session, jsonify
 from datetime import datetime
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from models import (
     db,
     Doctor,
@@ -23,6 +25,16 @@ def index():
     if "doctor_id" in session:
         return redirect(url_for("main.dashboard"))
     return redirect(url_for("auth.login"))
+
+
+@main_bp.route("/health")
+def health():
+    """Liveness and database check for Docker and CI. No login required."""
+    try:
+        db.session.execute(text("SELECT 1"))
+    except SQLAlchemyError:
+        return jsonify(status="error", database="unavailable"), 503
+    return jsonify(status="ok", database="ok")
 
 
 @main_bp.route("/dashboard")

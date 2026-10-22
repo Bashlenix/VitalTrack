@@ -5,7 +5,6 @@ services:
   # MySQL Database Service
   db:
     image: mysql:8.0
-    container_name: vitaltrack_db
     restart: unless-stopped
     environment:
       # Initialize MySQL on first startup configuration
@@ -40,11 +39,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: vitaltrack_web
+    # Image name lets CI start the stack from an image it already built and scanned
+    image: vitaltrack-web:latest
     restart: unless-stopped
-    # Load environment variables from .env file
+    # Load environment variables from .env file (optional, so CI can pass them another way)
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       # Override database host to use Docker Compose service name
       # This ensures Flask connects to MySQL using the service name 'db' instead of 'localhost'
@@ -64,6 +65,12 @@ services:
     volumes:
       # Persist uploaded radiology files, so they persist even if container is stopped
       - ./static/uploads:/app/static/uploads
+    healthcheck:
+      # App is healthy once /health answers, which also checks the database connection
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
     depends_on:
       # Uses the healthcheck defined earlier,Flask starts only after MySQL is ready
       db:
