@@ -29,12 +29,16 @@ def create_app(config_overrides=None):
     if config_overrides:
         app.config.update(config_overrides)
 
-    # Ensure secret key is configured for sessions
+    # The secret key signs session cookies and CSRF tokens. A random key per
+    # process would break logins across gunicorn workers, so only tests may
+    # run without one.
     if not app.config.get("SECRET_KEY"):
+        if not app.config.get("TESTING"):
+            raise RuntimeError(
+                "SECRET_KEY is not set. Generate one with scripts/generate_secrets.py "
+                "and put it in .env."
+            )
         app.config["SECRET_KEY"] = secrets.token_hex(32)
-        print(
-            "Warning: Using auto-generated secret key. Set SECRET_KEY in .env for production."
-        )
 
     # Initialize extensions
     db.init_app(app)

@@ -53,6 +53,11 @@ docker-compose.yml
 .coverage
 htmlcov/
 
+# Old upload folder (before uploads moved out of static/): never copy it, Flask
+# would serve it without login. The Dockerfile has a backstop check in case this
+# line is ever removed.
+static/uploads/
+
 # Uploads: never copy local patient uploads into the image. Only the committed
 # sample images are included; they seed the uploads volume on first start.
 uploads/**

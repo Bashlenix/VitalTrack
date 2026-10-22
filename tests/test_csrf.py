@@ -62,7 +62,9 @@ def test_base_template_exposes_csrf_token_for_scripts():
 
 def script_built_post_forms():
     for template in sorted(TEMPLATES.rglob("*.html")):
-        scripts = re.findall(r"createElement\('form'\).*?\.submit\(\)", template.read_text(), flags=re.S)
+        scripts = re.findall(
+            r"createElement\(\s*['\"]form['\"]\s*\).*?\.submit\(\)", template.read_text(), flags=re.S
+        )
         for number, script in enumerate(scripts, start=1):
             yield pytest.param(script, id=f"{template.relative_to(TEMPLATES)}#{number}")
 
@@ -71,3 +73,10 @@ def script_built_post_forms():
 def test_every_script_built_form_sends_csrf_token(script):
     assert "meta[name=csrf-token]" in script and "csrf_token" in script
     assert "if (csrfToken)" not in script, "token must always be sent, not only when present"
+
+
+def test_no_unreviewed_javascript_requests():
+    # fetch/XMLHttpRequest POSTs would bypass the form scans above
+    for template in TEMPLATES.rglob("*.html"):
+        html = template.read_text()
+        assert "fetch(" not in html and "XMLHttpRequest" not in html, template

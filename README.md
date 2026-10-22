@@ -115,7 +115,7 @@ This project is containerized using Docker and Docker Compose, making it easy to
 
 1. **Ensure you have a `.env` file**:
    
-   The `.env` file should contain all required environment variables. The Docker setup will automatically use the database service name `db` instead of `localhost` when running in containers.
+   The `.env` file must contain at least `SECRET_KEY` and `SECURITY_PASSWORD_SALT` (generate them with `python scripts/generate_secrets.py`); without `SECRET_KEY` the app refuses to start. The Docker setup will automatically use the database service name `db` instead of `localhost` when running in containers.
 
    **Important**: For Docker, you don't need to set `SQLALCHEMY_DATABASE_URI` in your `.env` file. Instead, the following variables will be used to construct the connection string:
    - `MYSQL_DATABASE`: Database name (default: `vitaltrack`)
@@ -201,7 +201,10 @@ This project is containerized using Docker and Docker Compose, making it easy to
 
 3. **Uploads after upgrading from the old bind mount**:
    - The app now runs as a non-root user and stores uploads in the `uploads_data` volume instead of `./static/uploads` on the host
-   - To move images uploaded with the old setup into the volume: `docker compose cp ./static/uploads/. web:/app/uploads/` (older versions stored images under `static/uploads/`)
+   - To move images uploaded with the old setup into the volume (older versions stored them under `static/uploads/`):
+     1. `docker compose cp ./static/uploads/. web:/app/uploads/`
+     2. `docker compose exec -u root web chown -R vitaltrack:vitaltrack /app/uploads` (copied files keep your host user as owner; the app could not add or delete images otherwise)
+     3. Check the images open in the app, then delete `./static/uploads` from the host. It must not stay there: anything under `static/` is public when the app runs outside Docker (`python app.py`). Docker builds ignore the folder, and the Dockerfile stops the build as a backstop if it ever gets copied in.
    - An existing `uploads_data` volume is never refilled with the sample images; remove it with `docker compose down -v` to start fresh
 
 4. **Debug mode** (local `python app.py` only): off by default; set `FLASK_DEBUG=1` to enable it. Never enable it in Docker or production: the debugger allows running code from the browser.
