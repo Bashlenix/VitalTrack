@@ -54,6 +54,6 @@ def delete_image_file(image_filename: str) -> bool:
             if os.path.exists(filepath):
                 os.remove(filepath)
                 return True
-        except Exception as e:
-            print(f"Error deleting file: {e}")
+        except Exception:
+            current_app.logger.exception("Error deleting file %s", image_filename)
     return False

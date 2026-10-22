@@ -26,6 +26,9 @@ class Config:
         SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Keep SQL parameter values (patient names, emails, dates of birth) out of
+    # database error messages, which end up in the server log
+    SQLALCHEMY_ENGINE_OPTIONS = {"hide_parameters": True}
 
     SECRET_KEY = os.getenv("SECRET_KEY")
     SECURITY_PASSWORD_SALT = os.getenv("SECURITY_PASSWORD_SALT")

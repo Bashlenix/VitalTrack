@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from models import db, Doctor, Specialty
 from utils.token_holper import load_token
 from utils.validators import validate_password, validate_email
+from utils.error_reporting import report_error
 from services.email_service import EmailService
 from datetime import datetime
 
@@ -60,8 +61,8 @@ def login_user():
         flash(f"Welcome back, Dr. {doctor.last_name}!", "success")
         return redirect(url_for("main.dashboard"))
 
-    except Exception as e:
-        flash(f"An error occurred during login: {str(e)}", "error")
+    except Exception:
+        report_error("An error occurred during login")
         return redirect(url_for("auth.login"))
 
 
@@ -241,9 +242,9 @@ def register_doctor():
 
         return redirect(url_for("auth.register_success"))
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"An error occurred during registration: {str(e)}", "error")
+        report_error("An error occurred during registration")
         return redirect(url_for("auth.register"))
 
 

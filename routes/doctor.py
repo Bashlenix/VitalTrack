@@ -5,6 +5,7 @@ Doctor profile management routes for the EHR system.
 from flask import Blueprint, request, redirect, url_for, flash, render_template, session
 from models import db, Doctor
 from utils.auth_decorators import login_required
+from utils.error_reporting import report_error
 
 doctor_bp = Blueprint("doctor", __name__)
 
@@ -45,9 +46,9 @@ def edit_doctor_profile():
             flash("Profile updated successfully!", "success")
             return redirect(url_for("doctor.doctor_profile"))
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"Error updating profile: {str(e)}", "error")
+            report_error("Error updating profile")
             return render_template("doctor/edit_doctor_profile.html", doctor=doctor)
 
     return render_template("doctor/edit_doctor_profile.html", doctor=doctor)

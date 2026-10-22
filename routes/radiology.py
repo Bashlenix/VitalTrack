@@ -17,6 +17,7 @@ from datetime import datetime
 import os
 from models import db, RadiologyImaging, Patient
 from utils.auth_decorators import login_required
+from utils.error_reporting import report_error
 from utils.file_handlers import save_uploaded_file, allowed_file, delete_image_file
 from services.patient_service import PatientService
 
@@ -166,9 +167,9 @@ def add_radiology_imaging():
             )
             return redirect(url_for("radiology.view_radiology_imaging"))
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"Error adding radiology imaging: {str(e)}", "error")
+            report_error("Error adding radiology imaging")
 
     # GET request - show form
     patients = (
@@ -336,9 +337,9 @@ def edit_radiology_imaging(imaging_id):
             datetime=datetime,
         )
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error editing radiology record: {str(e)}", "error")
+        report_error("Error editing radiology record")
         return redirect(url_for("main.dashboard"))
 
 
@@ -393,7 +394,7 @@ def delete_radiology_imaging(imaging_id):
         else:
             return redirect(url_for("radiology.view_radiology_imaging"))
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error deleting radiology record: {str(e)}", "error")
+        report_error("Error deleting radiology record")
         return redirect(url_for("main.dashboard"))
