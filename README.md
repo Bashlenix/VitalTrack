@@ -201,7 +201,7 @@ This project is containerized using Docker and Docker Compose, making it easy to
 
 3. **Uploads after upgrading from the old bind mount**:
    - The app now runs as a non-root user and stores uploads in the `uploads_data` volume instead of `./static/uploads` on the host
-   - To move images uploaded with the old setup into the volume: `docker compose cp ./static/uploads/. web:/app/static/uploads/`
+   - To move images uploaded with the old setup into the volume: `docker compose cp ./static/uploads/. web:/app/uploads/` (older versions stored images under `static/uploads/`)
    - An existing `uploads_data` volume is never refilled with the sample images; remove it with `docker compose down -v` to start fresh
 
 4. **Debug mode** (local `python app.py` only): off by default; set `FLASK_DEBUG=1` to enable it. Never enable it in Docker or production: the debugger allows running code from the browser.

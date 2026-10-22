@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 class Config:
     # Database configuration
@@ -38,7 +40,9 @@ class Config:
 
     # File upload configuration
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp", "tiff", "dcm", "dicom"}
-    UPLOAD_FOLDER = "static/uploads/radiology"
+    # Outside static/: Flask serves static/ without login. Images are only
+    # served through the access-checked /radiology_image route.
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads", "radiology")
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
     # Token configuration

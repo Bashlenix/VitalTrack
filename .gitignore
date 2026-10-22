@@ -5,3 +5,6 @@ __pycache__/
 instance/
 .DS_Store
 *.db
+# Patient uploads must never be committed (the tracked sample images stay
+# tracked; a new sample image needs git add -f)
+uploads/

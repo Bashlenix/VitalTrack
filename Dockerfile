@@ -33,11 +33,12 @@ COPY . .
 
 # Run as an unprivileged user: code stays read-only for it (permissions are
 # normalised so the image does not depend on the host's file modes), and it
-# only gets write access to the uploads folder
+# only gets write access to the uploads folder (kept outside static/, which
+# Flask serves without login)
 RUN chmod -R u=rwX,go=rX /app && \
     useradd --create-home --uid 10001 vitaltrack && \
-    mkdir -p static/uploads/radiology && \
-    chown -R vitaltrack:vitaltrack static/uploads
+    mkdir -p uploads/radiology && \
+    chown -R vitaltrack:vitaltrack uploads
 USER vitaltrack
 
 # Expose port 5000 for Flask

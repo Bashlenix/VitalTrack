@@ -65,6 +65,6 @@ def test_doctor_cannot_view_other_doctors_image(app, make_doctor, make_patient):
 
     client_b = app.test_client()
     login(client_b, "dr_b")
-    response = client_b.get(image_url)
-    assert response.status_code == 200
-    assert response.data == b"\x89PNG fake image"
+    with client_b.get(image_url) as response:
+        assert response.status_code == 200
+        assert response.data == b"\x89PNG fake image"
