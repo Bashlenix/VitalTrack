@@ -1,0 +1,208 @@
+# Secure CI/CD pipeline for VitalTrack.
+# lint, unit-tests and security run in parallel for fast feedback. The image is
+# built once (after lint), then scanned (container-scan) and started with MySQL
+# in a throwaway Compose "staging" stack for live integration tests. Build does
+# not wait for tests, so every stage reports its findings in one run; branch
+# protection requires all jobs to pass before merge.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Explicit bash adds -o pipefail, so a failing command piped into tee fails the step
+defaults:
+  run:
+    shell: bash
+
+# A newer push to the same branch cancels the older, now outdated run
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  IMAGE: vitaltrack-web:latest
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Ruff
+        run: ruff check --output-format=github .
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: pytest (unit, route and patient-data protection tests)
+        run: pytest -m "not integration" --junitxml=reports/junit.xml -ra
+      - name: Summary
+        if: always()
+        run: python .github/scripts/junit_summary.py "Unit tests" reports/junit.xml >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: unit-test-report
+          path: reports/
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Bandit (code, medium and high severity)
+        run: |
+          mkdir -p reports
+          status=0
+          bandit -r . -x ./tests,./.venv -ll -f txt -o reports/bandit.txt || status=$?
+          cat reports/bandit.txt
+          { echo '### Bandit'; echo '```'; tail -n 20 reports/bandit.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+      - name: pip-audit (known vulnerable dependencies)
+        if: always()
+        run: |
+          status=0
+          pip-audit -r requirements.txt --desc off > reports/pip-audit.txt 2>&1 || status=$?
+          cat reports/pip-audit.txt
+          { echo '### pip-audit'; echo '```'; cat reports/pip-audit.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: security-reports
+          path: reports/
+
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Export image for the next jobs
+        run: docker save "$IMAGE" | gzip > image.tar.gz
+      - uses: actions/upload-artifact@v7
+        with:
+          name: image
+          path: image.tar.gz
+          retention-days: 1
+
+  container-scan:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+      - run: docker load < image.tar.gz
+      - name: Trivy (OS and Python packages in the image)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+          output: trivy.txt
+      - name: Show report
+        if: always()
+        run: |
+          cat trivy.txt
+          { echo '### Trivy (CRITICAL/HIGH, fixable)'; echo '```'; cat trivy.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: trivy-report
+          path: trivy.txt
+
+  staging:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI_DOCTOR_USERNAME: ci_doctor
+      CI_DOCTOR_EMAIL: ci_doctor@example.com
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+      - run: docker load < image.tar.gz
+      - name: Generate throwaway secrets (.env)
+        run: |
+          {
+            echo "SECRET_KEY=$(openssl rand -hex 32)"
+            echo "SECURITY_PASSWORD_SALT=$(openssl rand -hex 16)"
+            echo "MYSQL_ROOT_PASSWORD=$(openssl rand -hex 16)"
+            echo "MYSQL_PASSWORD=$(openssl rand -hex 16)"
+            echo "MYSQL_DATABASE=vitaltrack"
+            echo "MYSQL_USER=vitaltrack_user"
+          } > .env
+          password="Ci-$(openssl rand -hex 12)A1!"
+          echo "::add-mask::$password"
+          echo "CI_DOCTOR_PASSWORD=$password" >> "$GITHUB_ENV"
+      - name: Start stack (app + MySQL) and wait until healthy
+        run: docker compose up -d --no-build --wait --wait-timeout 180
+      - name: Create CI doctor account
+        run: docker compose exec -T -e CI_DOCTOR_USERNAME -e CI_DOCTOR_EMAIL -e CI_DOCTOR_PASSWORD web python scripts/create_ci_doctor.py
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Integration tests against the live stack
+        env:
+          VITALTRACK_BASE_URL: http://localhost:5001
+        run: pytest tests/integration -ra --junitxml=reports/integration.xml
+      - name: Summary
+        if: always()
+        run: python .github/scripts/junit_summary.py "Integration tests (live stack)" reports/integration.xml >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: integration-test-report
+          path: reports/
+      - name: Container logs
+        if: always()
+        run: docker compose logs --no-color
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
