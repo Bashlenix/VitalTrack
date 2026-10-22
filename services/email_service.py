@@ -2,7 +2,7 @@
 Email service for handling email operations in the EHR system.
 """
 
-from flask import render_template, url_for
+from flask import current_app, render_template, url_for
 from utils.mail_helper import send_email
 from utils.token_holper import generate_token
 
@@ -30,8 +30,8 @@ class EmailService:
             )
             return True
 
-        except Exception as e:
-            print(f"Failed to send confirmation email: {e}")
+        except Exception:
+            current_app.logger.exception("Failed to send confirmation email")
             return False
 
     @staticmethod
@@ -52,6 +52,6 @@ class EmailService:
             )
             return True
 
-        except Exception as e:
-            print(f"Failed to send password reset email: {e}")
+        except Exception:
+            current_app.logger.exception("Failed to send password reset email")
             return False

@@ -6,6 +6,7 @@ from flask import Blueprint, request, redirect, url_for, flash, render_template,
 from datetime import datetime
 from models import db, LaboratoryResult, Patient, LabResultStatusEnum
 from utils.auth_decorators import login_required
+from utils.error_reporting import report_error
 from services.patient_service import PatientService
 
 lab_results_bp = Blueprint("lab_results", __name__)
@@ -51,8 +52,8 @@ def view_lab_results():
             datetime=datetime,
         )
 
-    except Exception as e:
-        flash(f"Error loading lab results: {str(e)}", "error")
+    except Exception:
+        report_error("Error loading lab results")
         return redirect(url_for("main.dashboard"))
 
 
@@ -140,9 +141,9 @@ def add_lab_result():
             )
             return redirect(url_for("lab_results.view_lab_results"))
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"Error adding lab result: {str(e)}", "error")
+            report_error("Error adding lab result")
             patients = (
                 Patient.query.filter_by(doctor_id=doctor_id)
                 .order_by(Patient.last_name)
@@ -255,9 +256,9 @@ def edit_lab_result(lab_result_id):
             datetime=datetime,
         )
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error editing lab result: {str(e)}", "error")
+        report_error("Error editing lab result")
         return redirect(url_for("main.dashboard"))
 
 
@@ -300,7 +301,7 @@ def delete_lab_result(lab_result_id):
         else:
             return redirect(url_for("lab_results.view_lab_results"))
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error deleting lab result: {str(e)}", "error")
+        report_error("Error deleting lab result")
         return redirect(url_for("main.dashboard"))

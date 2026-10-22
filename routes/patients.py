@@ -15,6 +15,7 @@ from models import (
     SocialHistory,
 )
 from utils.auth_decorators import login_required
+from utils.error_reporting import report_error
 from services.patient_service import PatientService
 from datetime import date
 
@@ -88,8 +89,8 @@ def view_all_patients():
         }
 
         return render_template("patient/patients.html", patients=patients, stats=stats)
-    except Exception as e:
-        flash(f"Error loading patients: {str(e)}", "error")
+    except Exception:
+        report_error("Error loading patients")
         return redirect(url_for("main.dashboard"))
 
 
@@ -214,8 +215,8 @@ def delete_patient(patient_id):
             "success",
         )
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error deleting patient: {str(e)}", "error")
+        report_error("Error deleting patient")
 
     return redirect(url_for("patients.view_all_patients"))

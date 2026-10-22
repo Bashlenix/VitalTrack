@@ -2,7 +2,7 @@
 Main navigation and dashboard routes for the EHR system.
 """
 
-from flask import Blueprint, redirect, url_for, flash, render_template, session, jsonify
+from flask import Blueprint, redirect, url_for, flash, render_template, session, jsonify, current_app
 from datetime import datetime
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -15,6 +15,7 @@ from models import (
     RadiologyImaging
 )
 from utils.auth_decorators import login_required
+from utils.error_reporting import report_error
 
 main_bp = Blueprint("main", __name__)
 
@@ -57,8 +58,8 @@ def dashboard():
             .limit(10)
             .all()
         )
-    except Exception as e:
-        print(f"Error fetching lab results: {e}")
+    except Exception:
+        current_app.logger.exception("Error fetching lab results")
         lab_results = []
 
     try:
@@ -69,8 +70,8 @@ def dashboard():
             .limit(10)
             .all()
         )
-    except Exception as e:
-        print(f"Error fetching appointments: {e}")
+    except Exception:
+        current_app.logger.exception("Error fetching appointments")
         appointments = []
 
     return render_template(
@@ -103,6 +104,6 @@ def about_us():
             "main/about_us.html", system_stats=system_stats, datetime=datetime
         )
 
-    except Exception as e:
-        flash(f"Error loading about page: {str(e)}", "error")
+    except Exception:
+        report_error("Error loading about page")
         return redirect(url_for("main.dashboard"))

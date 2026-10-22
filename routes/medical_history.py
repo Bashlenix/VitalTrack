@@ -6,6 +6,7 @@ from flask import Blueprint, request, redirect, url_for, flash, render_template,
 from datetime import datetime
 from models import db, Patient, MedicalHistory, Allergy
 from utils.auth_decorators import login_required
+from utils.error_reporting import report_error
 from services.patient_service import PatientService
 
 medical_history_bp = Blueprint("medical_history", __name__)
@@ -88,9 +89,9 @@ def add_medical_history():
             )
             return redirect(url_for("patients.view_all_patients"))
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"Error adding medical history: {str(e)}", "error")
+            report_error("Error adding medical history")
             patients = (
                 Patient.query.filter_by(doctor_id=doctor_id)
                 .order_by(Patient.last_name)
@@ -144,9 +145,9 @@ def add_medical_history():
             allergies = Allergy.query.order_by(Allergy.name).all()
             flash("Common allergies have been added to the system.", "info")
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"Error creating allergies: {str(e)}", "error")
+            report_error("Error creating allergies")
 
     # Get pre-selected patient ID from URL parameter
     selected_patient_id = request.args.get("patient_id")
@@ -251,9 +252,9 @@ def edit_medical_history(medical_history_id):
             )
             return redirect(url_for("patients.view_patient", patient_id=patient_id))
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"Error updating medical history: {str(e)}", "error")
+            report_error("Error updating medical history")
             patients = (
                 Patient.query.filter_by(doctor_id=doctor_id)
                 .order_by(Patient.last_name)
@@ -322,9 +323,9 @@ def delete_medical_history(medical_history_id):
         )
         return redirect(url_for("patients.view_patient", patient_id=patient_id))
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error deleting medical history: {str(e)}", "error")
+        report_error("Error deleting medical history")
         return redirect(
             url_for("patients.view_patient", patient_id=history_record.patient_id)
         )

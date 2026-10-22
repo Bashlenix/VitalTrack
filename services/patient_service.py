@@ -140,9 +140,10 @@ class PatientService:
             db.session.commit()
             return patient, []
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return None, [str(e)]
+            current_app.logger.exception("Could not save patient")
+            return None, ["Could not save the patient. Please try again or contact support."]
 
     @staticmethod
     def save_demographics(

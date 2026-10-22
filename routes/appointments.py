@@ -6,6 +6,7 @@ from flask import Blueprint, request, redirect, url_for, flash, render_template,
 from datetime import datetime
 from models import db, Appointment, Patient, AppointmentStatusEnum, AppointmentTypeEnum
 from utils.auth_decorators import login_required
+from utils.error_reporting import report_error
 from services.patient_service import PatientService
 
 appointments_bp = Blueprint("appointments", __name__)
@@ -62,8 +63,8 @@ def view_appointments():
             datetime=datetime,
         )
 
-    except Exception as e:
-        flash(f"Error loading appointments: {str(e)}", "error")
+    except Exception:
+        report_error("Error loading appointments")
         return redirect(url_for("main.dashboard"))
 
 
@@ -160,9 +161,9 @@ def schedule_appointment():
             )
             return redirect(url_for("main.dashboard"))
 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"Error scheduling appointment: {str(e)}", "error")
+            report_error("Error scheduling appointment")
             patients = (
                 Patient.query.filter_by(doctor_id=doctor_id)
                 .order_by(Patient.last_name)
@@ -209,8 +210,8 @@ def view_appointment(appointment_id):
             datetime=datetime,
         )
 
-    except Exception as e:
-        flash(f"Error loading appointment: {str(e)}", "error")
+    except Exception:
+        report_error("Error loading appointment")
         return redirect(url_for("main.dashboard"))
 
 
@@ -335,9 +336,9 @@ def edit_appointment(appointment_id):
             datetime=datetime,
         )
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error editing appointment: {str(e)}", "error")
+        report_error("Error editing appointment")
         return redirect(url_for("main.dashboard"))
 
 
@@ -379,7 +380,7 @@ def delete_appointment(appointment_id):
         else:
             return redirect(url_for("appointments.view_appointments"))
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error deleting appointment: {str(e)}", "error")
+        report_error("Error deleting appointment")
         return redirect(url_for("main.dashboard"))
