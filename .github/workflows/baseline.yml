@@ -1,0 +1,58 @@
+# Baseline pipeline: the minimum a project usually starts with
+# (install, build, one smoke check). Kept unchanged as the reference point
+# for comparing against the full CI/CD pipeline.
+name: baseline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SMOKE_TIMEOUT_SECONDS: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      # No pip cache on purpose: the baseline measures an unoptimised pipeline
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build Docker image
+        run: docker build -t vitaltrack:baseline .
+
+      # SQLite instead of MySQL: the smoke check only needs the app to boot
+      # and render /login, which does not query the database
+      - name: Start container
+        run: |
+          docker run -d --name vitaltrack-smoke -p 5000:5000 \
+            -e SQLALCHEMY_DATABASE_URI=sqlite:////tmp/smoke.db \
+            -e SECRET_KEY="$(openssl rand -hex 32)" \
+            -e SECURITY_PASSWORD_SALT="$(openssl rand -hex 16)" \
+            vitaltrack:baseline
+
+      - name: Smoke test (/login returns 200)
+        run: |
+          for _ in $(seq 1 "$SMOKE_TIMEOUT_SECONDS"); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:5000/login || true)
+            if [ "$code" = "200" ]; then
+              echo "Smoke test passed: /login returned 200"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "/login did not return 200 within ${SMOKE_TIMEOUT_SECONDS} attempts (last status: $code)"
+          docker logs vitaltrack-smoke
+          exit 1
