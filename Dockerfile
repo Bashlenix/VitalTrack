@@ -22,9 +22,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # This significantly speeds up rebuilds during development.
 COPY requirements.txt .
 
-# Install Python dependencies, avoids leaving unnecessary cache files inside the image.
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies without keeping pip's download cache in the image.
+# pip, setuptools and wheel are only needed to install packages. They carry
+# known vulnerabilities in their vendored libraries, so remove them afterwards.
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip uninstall -y setuptools wheel pip
 
 # Copy everything from project directory into the container
 COPY . .
