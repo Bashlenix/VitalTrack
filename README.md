@@ -187,24 +187,26 @@ This project is containerized using Docker and Docker Compose, making it easy to
 ### Data Persistence
 
 - **MySQL Data**: Stored in a Docker volume named `mysql_data`. This persists even if containers are stopped.
-- **Uploaded Files**: The `static/uploads/` directory is mounted as a volume, so uploaded files persist on your host machine.
+- **Uploaded Files**: Uploaded images are kept in the `uploads_data` Docker volume, so they persist across container restarts (`docker compose down -v` deletes them).
 
 ### Troubleshooting Docker Setup
 
 1. **Port conflicts**:
    - Flask application uses host port **5001** (change `"5001:5000"` in `docker-compose.yml` if needed)
    - MySQL uses host port **3307** (change `"3307:3306"` in `docker-compose.yml` if needed)
-   - Update the `HOST_PORT` environment variable in `docker-compose.yml` to match the host port if you change it
 
 2. **Database connection errors**:
    - Ensure the `db` service is healthy before Flask starts (health checks are configured)
    - Verify MySQL credentials in your `.env` file match those in `docker-compose.yml`
 
-3. **Permission errors with uploads**:
-   - Ensure the `static/uploads/` directory exists and has proper permissions
-   - The Docker container will create the directory structure if needed
+3. **Uploads after upgrading from the old bind mount**:
+   - The app now runs as a non-root user and stores uploads in the `uploads_data` volume instead of `./static/uploads` on the host
+   - To move images uploaded with the old setup into the volume: `docker compose cp ./static/uploads/. web:/app/static/uploads/`
+   - An existing `uploads_data` volume is never refilled with the sample images; remove it with `docker compose down -v` to start fresh
 
-4. **View container status**:
+4. **Debug mode** (local `python app.py` only): off by default; set `FLASK_DEBUG=1` to enable it. Never enable it in Docker or production: the debugger allows running code from the browser.
+
+5. **View container status**:
    ```bash
    docker-compose ps
    ```

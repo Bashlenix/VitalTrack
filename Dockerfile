@@ -31,11 +31,17 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Copy everything from project directory into the container
 COPY . .
 
-# Create directory for uploads if it doesn't exist
-RUN mkdir -p static/uploads/radiology
+# Run as an unprivileged user: code stays read-only for it (permissions are
+# normalised so the image does not depend on the host's file modes), and it
+# only gets write access to the uploads folder
+RUN chmod -R u=rwX,go=rX /app && \
+    useradd --create-home --uid 10001 vitaltrack && \
+    mkdir -p static/uploads/radiology && \
+    chown -R vitaltrack:vitaltrack static/uploads
+USER vitaltrack
 
 # Expose port 5000 for Flask
 EXPOSE 5000
 
-# Command to run the Flask application
-CMD ["python", "app.py"]
+# Production WSGI server instead of the Flask development server
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--access-logfile", "-", "app:app"]

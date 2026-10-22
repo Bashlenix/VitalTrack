@@ -53,5 +53,10 @@ docker-compose.yml
 .coverage
 htmlcov/
 
-# Uploads (will be mounted as volume, don't copy)
-static/uploads/
+# Uploads: never copy local patient uploads into the image. Only the committed
+# sample images are included; they seed the uploads volume on first start.
+static/uploads/**
+!static/uploads/radiology/patient_1/b332a963-4402-40b7-adc1-16b7a82e5978.jpg
+!static/uploads/radiology/patient_1/d5ed01cd-c8c2-446b-8ab1-d29d9a43b225.png
+!static/uploads/radiology/patient_3/b8836ffb-03bc-489f-a498-3352deecefe6.png
+!static/uploads/radiology/patient_7/4dcdccb7-8b91-470c-b99c-d324994cc258.png
