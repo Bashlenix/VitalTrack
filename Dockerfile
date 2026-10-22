@@ -31,6 +31,9 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Copy everything from project directory into the container
 COPY . .
 
+# Safety net: patient images under static/ would be served without login
+RUN test ! -e static/uploads
+
 # Run as an unprivileged user: code stays read-only for it (permissions are
 # normalised so the image does not depend on the host's file modes), and it
 # only gets write access to the uploads folder (kept outside static/, which

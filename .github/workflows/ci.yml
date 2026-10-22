@@ -183,6 +183,8 @@ jobs:
           echo "CI_DOCTOR_PASSWORD=$password" >> "$GITHUB_ENV"
       - name: Start stack (app + MySQL) and wait until healthy
         run: docker compose up -d --no-build --wait --wait-timeout 180
+      - name: Sample radiology images are in the uploads volume
+        run: docker compose exec -T web test -r /app/uploads/radiology/patient_1/d5ed01cd-c8c2-446b-8ab1-d29d9a43b225.png
       - name: Create CI doctor account
         run: |
           patient_id=$(docker compose exec -T -e CI_DOCTOR_USERNAME -e CI_DOCTOR_EMAIL -e CI_DOCTOR_PASSWORD web python scripts/create_ci_doctor.py | tail -n 1)
@@ -200,6 +202,8 @@ jobs:
         run: |
           mkdir -p reports
           pytest tests/integration -ra --junitxml=reports/integration.xml | tee reports/pytest.txt
+          # A skipped integration test would make this gate pass without checking anything
+          if grep -Eq "[0-9]+ skipped" reports/pytest.txt; then echo "Integration tests were skipped"; exit 1; fi
       - name: Summary
         if: always()
         run: |

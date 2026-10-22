@@ -45,14 +45,15 @@ The backend is built using Python and the Flask web framework. Flask is a lightw
 
 **Technologies Used:**
 - **Python 3** - Programming language
-- **Flask 2.3.3** - Web framework
-- **Flask-SQLAlchemy 3.0.5** - Database ORM (Object-Relational Mapping)
-- **Flask-Mail 0.9.1** - Email functionality
-- **Werkzeug 2.3.7** - Password hashing and security utilities
-- **itsdangerous 2.1.2** - Token generation for email confirmation and password reset
-- **python-dotenv 1.0.0** - Environment variable management
-- **mysql-connector-python 8.1.0** - MySQL database connector
-- **Pillow 12.0.0** - Image processing for radiology uploads
+- **Flask 3.1.3** - Web framework
+- **Flask-SQLAlchemy 3.1.1** / **SQLAlchemy 2.1.4** - Database ORM (Object-Relational Mapping)
+- **Flask-Mail 0.10.0** - Email functionality
+- **Flask-WTF 1.3.0** - CSRF protection for all forms
+- **Werkzeug 3.1.9** - Password hashing and security utilities
+- **itsdangerous 2.2.0** - Token generation for email confirmation and password reset
+- **python-dotenv 1.2.4** - Environment variable management
+- **mysql-connector-python 26.7.0** - MySQL database connector
+- **gunicorn 26.2.0** - Production WSGI server in the Docker image
 
 The application uses Flask's application factory pattern, where the app is created in `app.py` using a `create_app()` function. This makes the application more flexible and easier to test. All routes are organized into separate blueprint modules:
 
@@ -352,7 +353,7 @@ Figure 15 shows the add radiology imaging form. To add a new imaging record:
 3. Enter imaging date
 4. Upload an image file (optional, supports PNG, JPG, JPEG, GIF, BMP, TIFF, DCM, DICOM formats)
 
-The system validates the file type and size (maximum 10MB). Uploaded images are stored in organized folders by patient ID for easy management. The image filename is stored in the database, and the actual file is saved in the `static/uploads/radiology/patient_X/` directory.
+The system validates the file type and size (maximum 10MB). Uploaded images are stored in organized folders by patient ID for easy management. The image filename is stored in the database, and the actual file is saved in the `uploads/radiology/patient_X/` directory. This folder is outside `static/`, so images are only served through the `/radiology_image/...` route, which checks that the logged-in doctor owns the patient.
 
 #### 3.7.3 Editing and Deleting Radiology Records
 
