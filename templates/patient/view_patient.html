@@ -109,6 +109,7 @@
                         <form method="POST" action="{{ url_for('appointments.delete_appointment', appointment_id=appt.id) }}"
                             style="display: inline;"
                             onsubmit="return confirm('Are you sure you want to delete this appointment?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Appointment">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -154,6 +155,7 @@
                         <form method="POST" action="{{ url_for('lab_results.delete_lab_result', lab_result_id=lab.id) }}"
                             style="display: inline;"
                             onsubmit="return confirm('Are you sure you want to delete this lab result?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Lab Result">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -207,6 +209,7 @@
                         <form method="POST" action="{{ url_for('radiology.delete_radiology_imaging', imaging_id=imaging.id) }}"
                             style="display: inline;"
                             onsubmit="return confirm('Are you sure you want to delete this radiology imaging record?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Radiology Record">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -327,6 +330,12 @@
             confirmInput.name = 'confirm';
             confirmInput.value = 'true';
             form.appendChild(confirmInput);
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+            form.appendChild(csrfInput);
 
             document.body.appendChild(form);
             form.submit();

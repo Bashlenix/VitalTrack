@@ -26,6 +26,7 @@
         {% endwith %}
 
         <form method="POST" id="scheduleForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="patient_id">Patient <span class="required">*</span></label>
                 <select id="patient_id" name="patient_id" required>

@@ -22,6 +22,7 @@
         {% endwith %}
 
         <form method="POST" action="{{ url_for('auth.register_doctor') }}" id="registrationForm" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="firstName">First Name</label>
                 <input type="text" id="firstName" name="firstName" autocomplete="given-name" maxlength="100">

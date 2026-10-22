@@ -38,6 +38,7 @@
     <!-- Edit Form -->
     <div class="form-container">
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-row">
                 <div class="form-group autocomplete">
                     <label for="test_name">Test Name <span class="required">*</span></label>

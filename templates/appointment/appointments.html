@@ -239,15 +239,12 @@
             form.method = 'POST';
             form.action = `/delete_appointment/${appointmentId}`;
             
-            // Add CSRF token if needed (you might need to add this)
-            const csrfToken = document.querySelector('meta[name=csrf-token]');
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrf_token';
-                csrfInput.value = csrfToken.getAttribute('content');
-                form.appendChild(csrfInput);
-            }
+            // Send the CSRF token (required for every POST)
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+            form.appendChild(csrfInput);
             
             document.body.appendChild(form);
             form.submit();
