@@ -1,0 +1,6 @@
+# Test and analysis tools used by the CI pipeline (not installed in the image)
+-r requirements.txt
+pytest==9.1.1
+ruff==0.16.10
+bandit==1.9.4
+pip-audit==2.10.1

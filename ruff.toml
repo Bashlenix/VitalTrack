@@ -1,0 +1,5 @@
+# Pyflakes (F) and pycodestyle error (E4, E7, E9) rules: real bugs, not style
+extend-exclude = [".venv", "venv"]
+
+[lint]
+select = ["E4", "E7", "E9", "F"]
