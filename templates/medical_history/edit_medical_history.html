@@ -15,6 +15,7 @@
         </div>
 
         <form method="POST" id="medicalHistoryForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="patient_id">Patient <span class="required">*</span></label>
                 <select id="patient_id" name="patient_id" class="form-control" disabled required>
@@ -241,6 +242,12 @@
             confirmInput.name = 'confirm';
             confirmInput.value = 'true';
             form.appendChild(confirmInput);
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+            form.appendChild(csrfInput);
 
             document.body.appendChild(form);
             form.submit();

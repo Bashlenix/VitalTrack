@@ -3,7 +3,8 @@ Main Flask application factory for the EHR system.
 """
 
 import os
-from flask import Flask
+from flask import Flask, request
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from config import Config
 from models import db
 from utils.mail_helper import init_mail
@@ -37,6 +38,17 @@ def create_app(config_overrides=None):
 
     # Initialize extensions
     db.init_app(app)
+    # Every POST must carry the session's CSRF token (rejected with 400 otherwise)
+    CSRFProtect(app)
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(error):
+        app.logger.warning("CSRF check failed on %s: %s", request.path, error.description)
+        message = (
+            "Your session expired or the form was invalid. "
+            "Please go back, reload the page and submit again."
+        )
+        return message, 400
     init_mail(app)
 
     # Register blueprints
