@@ -3,7 +3,9 @@
 # built once (after lint), then scanned (container-scan) and started with MySQL
 # in a throwaway Compose "staging" stack for live integration tests. Build does
 # not wait for tests, so every stage reports its findings in one run; branch
-# protection requires all jobs to pass before merge.
+# protection requires all gate jobs to pass before merge. On main, publish
+# then pushes that same tested image to GitHub Container Registry (Continuous
+# Delivery: every published image is releasable, deploying it stays manual).
 name: ci
 
 on:
@@ -21,10 +23,12 @@ defaults:
   run:
     shell: bash
 
-# A newer push to the same branch cancels the older, now outdated run
+# A newer push to a pull request cancels the older, now outdated run. Other
+# runs are grouped per commit, so no merged commit is cancelled or dropped
+# from the queue before its image is published
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   PYTHON_VERSION: "3.11"
@@ -116,6 +120,10 @@ jobs:
           context: .
           load: true
           tags: ${{ env.IMAGE }}
+          # Lets anyone trace a published image back to its repository and commit
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Export image for the next jobs
@@ -219,3 +227,49 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose down -v
+
+  publish:
+    # Only after every gate passed, and only for commits on main (which already
+    # passed the same gates in their pull request). The image is not rebuilt:
+    # the one that was scanned and run in staging is the one that is published
+    needs: [lint, unit-tests, security, build, container-scan, staging]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+      - run: docker load < image.tar.gz
+      - name: Log in to GitHub Container Registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+      - name: Push tested image (immutable sha tag + moving main tag)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          image_ref="ghcr.io/${GITHUB_REPOSITORY,,}"
+          sha_tag="$image_ref:sha-$GITHUB_SHA"
+          # A sha tag is written once: a re-run of the same commit keeps the
+          # image that was first published. Only "not found" counts as absent
+          if inspect_error=$(docker manifest inspect "$sha_tag" 2>&1 > /dev/null); then
+            echo "$sha_tag already published, not overwriting"
+          elif grep -Eqi "manifest unknown|not found|no such manifest" <<< "$inspect_error"; then
+            docker tag "$IMAGE" "$sha_tag"
+            docker push "$sha_tag"
+          else
+            echo "Cannot check $sha_tag: $inspect_error"; exit 1
+          fi
+          # main follows the newest commit only, so a late or re-run older run
+          # cannot move it backwards. It always points at the sha tag's image
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)" = "$GITHUB_SHA" ]; then
+            docker buildx imagetools create --tag "$image_ref:main" "$sha_tag"
+          else
+            echo "main has moved on, leaving $image_ref:main unchanged"
+          fi
+          digest=$(docker buildx imagetools inspect "$sha_tag" | awk '/^Digest:/ {print $2}')
+          { echo "### Published image"; echo "- \`$sha_tag\`"; echo "- digest \`$digest\`"; } >> "$GITHUB_STEP_SUMMARY"
